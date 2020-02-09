@@ -1,4 +1,4 @@
-import { client } from '../utils/request'
+import { proxyClient } from '../utils/request'
 
 type IAccountLoginParams = {
   account: string
@@ -6,8 +6,9 @@ type IAccountLoginParams = {
 }
 
 export const accountAPI = {
-  getInfo: () => client.get('/account/info'),
-  logout: () => client.get('/account/logout'),
-  login: (params: IAccountLoginParams) => client.post('/account/login', params),
-  register: (params: any) => client.post('/account/register', params),
+  getInfo: () => proxyClient.get('/account/info'),
+  logout: () => proxyClient.get('/account/logout'),
+  login: (params: IAccountLoginParams) =>
+    proxyClient.post('/account/login', params),
+  register: (params: any) => proxyClient.post('/account/register', params),
 }

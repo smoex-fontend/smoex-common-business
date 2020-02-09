@@ -1,6 +1,7 @@
 import { ACCOUNT_ACTION, ACCOUNT_ASYNC_ACTION } from './enums'
 import { accountAPI } from '../../apis/account'
 import { securityAPI } from '../../apis/security'
+import { createPayloadAction } from 'redux-async-kit'
 
 const sleep = (timeountMS: any) =>
   new Promise((resolve) => {
@@ -15,14 +16,7 @@ function createAction(type: string) {
 }
 
 export const accountAction = {
-  setInfo: createAction(ACCOUNT_ACTION.SET_INFO),
-  // setInfo: (data: any) => ({
-  //   type: ACCOUNT_ACTION.SET_INFO,
-  //   payload: async () => {
-  //     await sleep(1000)
-  //     return data
-  //   },
-  // }),
+  setInfo: createPayloadAction(ACCOUNT_ACTION.SET_INFO),
 }
 
 // const getInfo = async (meta: any, dispatch: any) => {

@@ -1,7 +1,7 @@
 import AxiosClient from 'axios'
 import * as qs from 'qs'
 
-export class ApiError {
+export class APIError {
   public code: number
   public message: string
   public info: any
@@ -13,12 +13,21 @@ export class ApiError {
   }
 }
 
-export const client = AxiosClient.create({
-  baseURL: 'http://localhost:8080',
-  // baseURL: 'https://api.smoex.com',
+const transformResponse = (body: any) => {
+  if (body.code === 0) {
+    return body.data
+  } else {
+    // return data
+    throw new APIError(-1, body.data.message, body.data)
+  }
+}
+
+export const proxyClient = AxiosClient.create({
+  baseURL: '/api',
   timeout: 100000,
   withCredentials: true,
   responseType: 'json',
+  transformResponse,
   headers: {
     'Content-Type': 'application/x-www-form-urlencoded',
   },
@@ -28,17 +37,36 @@ export const client = AxiosClient.create({
     }
     return qs.stringify(params)
   },
-  transformResponse: (body) => {
-    if (body.code === 0) {
-      return body.data
-    } else {
-      // return data
-      throw new ApiError(-1, body.data.message, body.data)
+})
+
+export const apiClient = AxiosClient.create({
+  baseURL: 'https://api.smoex.com',
+  timeout: 100000,
+  withCredentials: true,
+  responseType: 'json',
+  transformResponse,
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  },
+  transformRequest: (params: any) => {
+    if (params instanceof FormData) {
+      return params
     }
+    return qs.stringify(params)
   },
 })
 
-client.interceptors.response.use(
+proxyClient.interceptors.response.use(
+  (response) => {
+    return response.data
+  },
+  (error) => {
+    console.error(error)
+    return Promise.reject(error)
+  },
+)
+
+apiClient.interceptors.response.use(
   (response) => {
     return response.data
   },
@@ -55,9 +83,3 @@ export const withFormData = (params: any) => {
   })
   return formData
 }
-
-// export const api = {
-//   get: axios.get,
-//   post: axios.post,
-//   postWithFormData: () => axios.post()
-// }
